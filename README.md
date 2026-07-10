@@ -25,8 +25,9 @@ knob that makes it collapse (data fraction).
 - Optimizer: AdamW, `lr = 1e-3`, `weight_decay = 1.0`, `betas = (0.9, 0.98)`.
 - Training: full-batch, 40,000 steps, cross-entropy on the equals position.
 - Logging: train and test eval every 100 steps. Model checkpoint every 2,000 steps.
-- Hardware: Apple M3, MPS backend. A full 40k-step run takes 25 to 60 minutes depending
-  on the training fraction.
+- Hardware: Apple M3 (8-core, 8GB), PyTorch MPS backend. A full 40k-step run takes 25 to
+  60 minutes depending on the training fraction (see the variants table below for
+  per-run wall clocks).
 
 ## Main result
 
@@ -39,6 +40,7 @@ The main run uses `frac_train = 0.25` (3,192 training pairs, 9,577 test pairs).
 | test_acc first >= 0.99 (generalization) | 3,500 |
 | final test_acc | 1.0000 |
 | final test_loss | 0.0031 |
+| wall clock, full 40k steps | 26m 56s |
 
 For roughly two thousand steps between memorization and the cliff, train accuracy is
 pinned at 1.0 while test accuracy sits flat around 0.25. Test loss actually rises during
@@ -48,11 +50,16 @@ several thousand steps, which is why the plot uses a log-x scale.
 
 ## Variants
 
-| Run | frac_train | weight_decay | Grokked? | Steps to memorize | Steps to generalize (test >= 99%) |
-|-----|------------|--------------|----------|-------------------|-----------------------------------|
-| main              | 0.25 | 1.0 | yes, sharp cliff | 100 | 3,500 |
-| ablation-wd0      | 0.25 | 0.0 | no               | 100 | did not generalize within 40k steps |
-| ablation-highdata | 0.50 | 1.0 | no visible cliff | 100 | 200 |
+| Run | frac_train | weight_decay | Grokked? | Steps to memorize | Steps to generalize (test >= 99%) | Wall clock (40k steps) |
+|-----|------------|--------------|----------|-------------------|-----------------------------------|------------------------|
+| main              | 0.25 | 1.0 | yes, sharp cliff | 100 | 3,500 | 26m 56s |
+| ablation-wd0      | 0.25 | 0.0 | no               | 100 | did not generalize within 40k steps | 25m 21s |
+| ablation-highdata | 0.50 | 1.0 | no visible cliff | 100 | 200 | 57m 51s |
+
+All runs completed with exit code 0 on the same Apple M3 machine. The
+`ablation-highdata` run is roughly 2x slower per step because doubling `frac_train` doubles
+the full-batch size, and each step's forward and backward passes are dominated by the
+batch dimension. The `sanity` run (`frac_train = 0.30`, not in this table) took 45m 53s.
 
 The two ablations bracket the grokking regime.
 
