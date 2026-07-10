@@ -1,0 +1,23 @@
+run_name: ablation-wd0
+seed: 42
+
+task:
+  p: 113
+  frac_train: 0.25
+
+model:
+  n_layers: 1
+  d_model: 128
+  n_heads: 4
+  d_mlp: 512
+
+optim:
+  lr: 1.0e-3
+  weight_decay: 0.0
+  betas: [0.9, 0.98]
+
+train:
+  total_steps: 40000
+  log_every: 100
+  ckpt_every: 2000
+  device: auto
