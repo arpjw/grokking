@@ -13,6 +13,7 @@ import yaml
 
 from data import make_data, vocab_size
 from model import Transformer
+from run_output import prepare_run_dir
 
 
 def pick_device(pref: str) -> str:
@@ -71,8 +72,7 @@ def train(cfg_path: str):
         betas=tuple(float(x) for x in o["betas"]),
     )
 
-    out_dir = os.path.join("results", run_name)
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = prepare_run_dir(run_name)
     shutil.copy(cfg_path, os.path.join(out_dir, "config.yaml"))
     csv_path = os.path.join(out_dir, "metrics.csv")
 
