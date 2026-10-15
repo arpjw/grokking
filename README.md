@@ -116,6 +116,9 @@ python plot.py --run results/ablation-highdata
 ```
 
 Requires PyTorch (MPS or CUDA optional), numpy, pandas, matplotlib, pyyaml.
+The trainer creates a new `results/<run_name>` directory and refuses to overwrite an
+existing run. To rerun one of the checked-in configs, copy it and give it a new
+`run_name` first. Run `python -m unittest test_run_output.py` to check this guard.
 
 ## References
 
